@@ -1,16 +1,20 @@
 package dev.lexi.launcher.gui;
 
+import javafx.animation.*;
+import javafx.application.Platform;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.skin.ComboBoxListViewSkin;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.util.Callback;
+import javafx.util.Duration;
 
 public class CustomDropdown {
 
-    private String[] items;
+    private final String[] items;
 
     public CustomDropdown(String[] items) {
         this.items = items;
@@ -39,7 +43,7 @@ public class CustomDropdown {
                     -fx-accent: #3c3c3c;
                     -fx-text-fill: white;
                     -fx-background-radius: 15;
-                    -fx-padding: 5; /* Ensure inner padding fits within the radius */
+                    -fx-padding: 5;
                 """);
 
                 popupList.setCellFactory((Callback) createCustomCellFactory());
@@ -62,32 +66,58 @@ public class CustomDropdown {
                                     -fx-background-color: #3c3c3c;
                                     -fx-background-radius: 15;
                                 """);
-                            }
 
-                            Region incrementButton = (Region) bar.lookup(".increment-button");
-                            Region decrementButton = (Region) bar.lookup(".decrement-button");
-                            if (incrementButton != null) {
-                                incrementButton.setStyle("""
-                                    -fx-background-color: transparent;
-                                    -fx-padding: 5;
-                                    -fx-background-radius: 15;
-                                """);
-                                incrementButton.setManaged(true);
-                                incrementButton.setVisible(true);
-                                incrementButton.setTranslateY(-2);
-                            }
-                            if (decrementButton != null) {
-                                decrementButton.setStyle("""
-                                    -fx-background-color: transparent;
-                                    -fx-padding: 5;
-                                    -fx-background-radius: 15;
-                                """);
-                                decrementButton.setManaged(true);
-                                decrementButton.setVisible(true);
-                                decrementButton.setTranslateY(2);
+                                thumb.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
+                                    ScaleTransition scaleUp = new ScaleTransition(Duration.millis(200), thumb);
+                                    scaleUp.setToX(1.2);
+                                    scaleUp.setToY(1.2);
+                                    scaleUp.play();
+                                });
+
+                                thumb.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
+                                    ScaleTransition scaleDown = new ScaleTransition(Duration.millis(200), thumb);
+                                    scaleDown.setToX(1);
+                                    scaleDown.setToY(1);
+                                    scaleDown.play();
+                                });
                             }
                         }
                     });
+                });
+
+                popupList.setOpacity(0);
+                popupList.setTranslateY(-10);
+
+                dropdown.showingProperty().addListener((obs, wasShowing, isNowShowing) -> {
+                    if (isNowShowing) {
+                        Platform.runLater(() -> {
+                            FadeTransition fadeIn = new FadeTransition(Duration.millis(200), popupList);
+                            fadeIn.setFromValue(0);
+                            fadeIn.setToValue(1);
+
+                            TranslateTransition translateIn = new TranslateTransition(Duration.millis(200), popupList);
+                            translateIn.setFromY(-10);
+                            translateIn.setToY(0);
+
+                            ParallelTransition openTransition = new ParallelTransition(fadeIn, translateIn);
+                            openTransition.play();
+                        });
+                    } else {
+                        FadeTransition fadeOut = new FadeTransition(Duration.millis(200), popupList);
+                        fadeOut.setFromValue(1);
+                        fadeOut.setToValue(0);
+
+                        TranslateTransition translateOut = new TranslateTransition(Duration.millis(200), popupList);
+                        translateOut.setFromY(0);
+                        translateOut.setToY(-10);
+
+                        ParallelTransition closeTransition = new ParallelTransition(fadeOut, translateOut);
+                        closeTransition.setOnFinished(e -> {
+                            popupList.setTranslateY(-10);
+                            popupList.setOpacity(0);
+                        });
+                        closeTransition.play();
+                    }
                 });
             }
         });
