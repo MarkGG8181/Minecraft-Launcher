@@ -1,4 +1,4 @@
-package dev.lexi.launcher.utils;
+package dev.lexi.launcher.utils.swing;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,4 +1,4 @@
-package dev.lexi.launcher.utils;
+package dev.lexi.launcher.utils.file;
 
 import java.io.File;
 
@@ -7,6 +7,11 @@ public class FileUtil {
     public static boolean fileExists(String filePath) {
         File file = new File(filePath);
         return file.exists() && file.isFile(); // Returns true if the file exists and it's a regular file
+    }
+
+    public static boolean folderExists(String folderPath) {
+        File folder = new File(folderPath);
+        return folder.exists() && folder.isDirectory();
     }
 
     public static void createFolder(String path) {

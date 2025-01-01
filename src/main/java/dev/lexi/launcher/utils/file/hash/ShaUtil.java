@@ -1,4 +1,4 @@
-package dev.lexi.launcher.utils;
+package dev.lexi.launcher.utils.file.hash;
 
 import java.io.File;
 import java.io.FileInputStream;
