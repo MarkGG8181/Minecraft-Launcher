@@ -2,59 +2,54 @@ package dev.lexi.launcher.windows;
 
 import dev.lexi.launcher.data.version.Version;
 import dev.lexi.launcher.game.VersionManager;
+import dev.lexi.launcher.gui.CustomButton;
+import dev.lexi.launcher.gui.CustomDropdown;
 import dev.lexi.launcher.init.Initializer;
-import dev.lexi.launcher.utils.swing.FontUtil;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
-import javax.swing.*;
-import java.awt.*;
+public class LauncherWindow extends Application {
 
-public class LauncherWindow {
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("Lexi's Launcher");
 
-    public static void init() {
-        JFrame frame = new JFrame();
+        AnchorPane layout = new AnchorPane();
 
-        frame.setSize(700, 300);
-        frame.setTitle("Lexi's launcher");
+        String[] versions = Initializer.instance.versionList.available_releases
+                .stream()
+                .map(v -> v.versionId)
+                .toArray(String[]::new);
+        CustomDropdown customDropdown = new CustomDropdown(versions);
+        javafx.scene.control.ComboBox<String> versionDropdown = customDropdown.createDropdown();
+        AnchorPane.setTopAnchor(versionDropdown, 10.0);
+        AnchorPane.setLeftAnchor(versionDropdown, 20.0);
+        AnchorPane.setRightAnchor(versionDropdown, 20.0);
 
-        frame.setLayout(null);
-        frame.setLocationRelativeTo(null);
-        frame.setResizable(false);
+        CustomButton customButton = new CustomButton("Launch");
+        Button launchButton = customButton.createButton();
+        AnchorPane.setBottomAnchor(launchButton, 20.0);
+        AnchorPane.setLeftAnchor(launchButton, 20.0);
 
-        JLabel jLabel = FontUtil.getLabel("Current version: ", "Arial", 12);
-        jLabel.setSize(jLabel.getPreferredSize());
-        jLabel.setLocation(5, 300 - 30 - 44 - 20);
-        JComboBox<String> versionDropdown = createVersionDropdown();
-
-        versionDropdown.setBounds(5, 300 - 30 - 44, 200, 30);
-
-        JButton mainButton = new JButton("Launch");
-        mainButton.setFont(Font.getFont("Arial"));
-        mainButton.setSize(100, 30);
-        mainButton.setLocation(700 - 100 - 20, 300 - 30 - 44);
-
-        frame.add(mainButton);
-        frame.add(jLabel);
-        frame.add(versionDropdown);
-
-        mainButton.addActionListener((e) -> {
-            String id = (String) versionDropdown.getSelectedItem();
-            Version version = Initializer.instance.versionList.getVersionById(id);
-
-            VersionManager.instance.launch(version);
+        launchButton.setOnAction(e -> {
+            String selectedVersion = versionDropdown.getValue();
+            if (selectedVersion != null) {
+                Version version = Initializer.instance.versionList.getVersionById(selectedVersion);
+                VersionManager.instance.launch(version);
+            }
         });
 
-        frame.setVisible(true);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        layout.getChildren().addAll(versionDropdown, launchButton);
+
+        Scene scene = new Scene(layout, 1000, 400);
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
-    private static JComboBox<String> createVersionDropdown() {
-
-        String[] versionTags = new String[Initializer.instance.versionList.available_releases.size()];
-        for (int i = 0; i < Initializer.instance.versionList.available_releases.size(); i++) {
-            versionTags[i] = Initializer.instance.versionList.available_releases.get(i).versionId;
-        }
-
-        return new JComboBox<>(versionTags);
+    public static void startLauncher() {
+        Application.launch(LauncherWindow.class);
     }
-
 }
