@@ -26,6 +26,7 @@ public class Main {
 
         if (!ShaUtil.checkFileSHA1("launcher_data/data/version_manifest_v2.json", "2ca408a6367f28107a1a0cdcfb5a87c2fcc95c0c")) {
             JOptionPane.showMessageDialog(null, "Hash of 'version_manifest_v2.json' is invalid.");
+            return;
         }
 
         Initializer.instance.init();

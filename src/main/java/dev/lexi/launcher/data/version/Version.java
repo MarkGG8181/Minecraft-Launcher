@@ -6,5 +6,5 @@ import lombok.AllArgsConstructor;
 public class Version {
     public String versionId;
     public String versionJsonUrl;
-    public String versionSha1;
+    public String versionJsonSha1;
 }
